@@ -71,23 +71,18 @@ for t in time_steps:
 
     dq_t = J_pinv @ dX_t
     dJ_dt = (J - J_prev) / dt if t > 0 else np.zeros_like(J)
-    
-    ddX_t = ddX_t.reshape((3, 1))
-    print(f"dJ_dt: {dJ_dt.shape}")
-    print(f"dX_t: {dX_t.shape}")
-    print(f"J_pinv: {J_pinv.shape}")
-    print(f"ddX_t: {ddX_t.shape}")
-    print(f"dq_t: {dq_t.shape}")
-    print(f"J: {J.shape}")
-    print(f"J: {J.shape}")
-    print(f"dof: {model.nv}")
-    # ddq_t = J_pinv @ (ddX_t - dJ_dt @ dX_t)
-    ddq_t = np.ndarray((4, 1))
+    ddq_t = J_pinv @ (ddX_t - dJ_dt @ dq_t)
 
     # Set state in the data object
-    data.qpos[:] = q_t
-    # data.qvel[:] = dq_t.reshape((4, 1))
-    data.qacc[:] = ddq_t.reshape((4, ))
+    data.qpos[:] = q_t.flatten()
+    data.qvel[:] = dq_t.flatten()
+
+    # Ensure ddq_t matches the shape of data.qacc
+    if ddq_t.shape != data.qacc.shape:
+        print(f"Shape mismatch: ddq_t shape: {ddq_t.shape}, data.qacc shape: {data.qacc.shape}")
+        ddq_t = ddq_t[:data.qacc.shape[0]]
+
+    data.qacc[:] = ddq_t.flatten()
 
     # Compute inverse dynamics to get joint torques
     mujoco.mj_inverse(model, data)
