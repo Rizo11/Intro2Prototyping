@@ -1,9 +1,67 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<mujoco model="4-bar-mechanism">
-    <worldbody>
-        <geom type="plane" size="15 15 0.1" pos="0 0 0" rgba=".9 0 0 1" />
-        <light diffuse=".5 .5 .5" pos="0 0 3" dir="0 0 -1" />
+<mujoco model="parallel">
+    <visual>
+        <headlight ambient="0.5 0.5 0.5" />
+    </visual>
 
-        <body name="cube_body" pos="0 0 5">     
+    <option gravity="0 0 -9.81" />
+
+     <actuator>
+        <motor gear="100" joint="joint_yaw_l" name="yaw_actuator_left" ctrlrange="-.02 .02" ctrllimited="true"/>
+        <motor gear="100" joint="joint_yaw_r" name="yaw_actuator_right" ctrlrange="-.02 .02" ctrllimited="true"/>
+    </actuator>
+
+    <worldbody>
+        <light name="overhead_light" pos="0 0 1"/>
+        <geom type="plane" pos="0 0 0" size="1 1 0.1" rgba="20 216 146 0.8"/>
+
+        <body name="fixed_actiator_left" euler="90 0 0">
+            <geom type="cylinder" fromto="0.05 .0315 0.128 0.05 .0085 0.128" size=".018" mass="0.065" rgba="0.3 0.1 0.5 1"/>
+            <joint name="joint_yaw_l" pos="0.05 0.02 0.128" axis="0 1 0" />
+            <body name="linkage_2_left" euler="0 0 0">
+                <geom name="linkage2_l" type="box" pos="0.05 0.02 0.196" size=".005 .005 .05" mass="0.02" rgba="0 1 1 1"/>
+                <body name="actuator1_left" euler="0 0 0">
+                    <geom type="cylinder" fromto="0.05 .0315 0.264 0.05 .0085 0.264" size=".018" mass="0.065" rgba="0.3 0.1 0.5 1"/>
+                    <joint name="joint_pitch_l" pos="0.05 0.02 0.264" axis="0 1 0" />
+                    <body name="linkage_1_left" euler="0 0 0">
+                        <geom name="linkage1_l" type="box" pos="0.10 0.02 0.314" size=".005 .005 .068" mass="0.02" axisangle="0 1 0 42.67" rgba="0 1 1 1"/>
+                        <body name="actuator_center_left" euler="0 0 0">
+                             <geom type="cylinder" fromto="0.15 .0315 0.364 0.15 .0085 0.364" size=".018" mass="0.065" rgba="0.3 0.1 0.5 1"/>
+                             <joint name="joint_roll_l" pos="0.15 0.02 0.364" axis="0 1 0" />
+                         </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+
+        <body name="fixed_actiator_right" euler="90 0 0">
+            <geom type="cylinder" fromto="0.25 .0315 0.128 0.25 .0085 0.128" size=".018" mass="0.065" rgba="0.3 0.1 0.5 1"/>
+            <joint name="joint_yaw_r" pos="0.25 0.02 0.128" axis="0 1 0" />
+            <body name="linkage_2_right" euler="0 0 0">
+                <geom name="linkage2_r" type="box" pos="0.25 0.02 0.196" size=".005 .005 .05" mass="0.02" rgba="0 1 1 1"/>
+                <body name="actuator1_right" euler="0 0 0">
+                    <geom type="cylinder" fromto="0.25 .0315 0.264 0.25 .0085 0.264" size=".018" mass="0.065" rgba="0.3 0.1 0.5 1"/>
+                    <joint name="joint_pitch_r" pos="0.25 0.02 0.264" axis="0 1 0" />
+                     <body name="linkage_1_right" euler="0 0 0">
+                         <geom name="linkage1_r" type="box" pos="0.20 0.02 0.314" size=".005 .005 .068" mass="0.02" axisangle="0 1 0 -42.67" rgba="0 1 1 1"/>
+                         <body name="actuator_center_right" euler="0 0 0">
+                             <geom type="cylinder" fromto="0.15 .0315 0.364 0.15 .0085 0.364" size=".018" mass="0.065" rgba="0.3 0.1 0.5 1"/>
+                             <joint name="joint_roll_r" pos="0.15 0.02 0.364" axis="0 1 0" />
+                         </body>
+                    </body>
+                </body>
+            </body>
+        </body>
     </worldbody>
+
+    <contact>
+        <exclude body1="actuator_center_left" body2="actuator_center_right"/>
+    </contact>
+
+    <equality>
+        <connect name="linkage_constraint" active="true" body1="actuator_center_left" body2="actuator_center_right" anchor="0.15 -0.02 0.364" />
+    </equality>
+
 </mujoco>
+
+
+<!-- fromto="0.05 .0315 0.128 0.05 .0085 0.128", the cylinder starts at (0.05, -0.0315, 0.128) and ends at (0.05, -0.0085, 0.128). -->
