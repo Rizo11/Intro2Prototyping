@@ -1,57 +1,69 @@
 import time
+import itertools
 import mujoco
 import numpy as np
-import itertools
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-# Load model
-model = mujoco.MjModel.from_xml_path('hand.xml')
+# Load MuJoCo model and data
+model_path = 'hand.xml'
+model = mujoco.MjModel.from_xml_path(model_path)
 data = mujoco.MjData(model)
 
-# Joint limits (for each DoF, assumed to be between -pi and pi for simplicity)
-num_dofs = model.nq
-joint_ranges = [(-np.pi, np.pi)] * num_dofs
-num_steps = 10
+# Get joint names and limits
+joints = []
+joint_limits = []
+num_samples = 10
+for i in range(model.njnt):
+    joints.append(mujoco.mj_id2name(model, mujoco.mjtObj.mjOBJ_JOINT, i))
+    joint_limits.append(model.jnt_range[i])
 
-# Create grid of joint angles
-joint_angles = [np.linspace(start, end, num_steps) for start, end in joint_ranges]
-all_configs = list(itertools.product(*joint_angles))
+# Simulate a step to initialize
+mujoco.mj_step(model, data)
 
-# Results storage
-results = []
+# Generate all possible configurations within the joint limits
+joint_ranges = [np.linspace(limit[0], limit[1], num=num_samples) for limit in joint_limits]
+all_configurations = itertools.product(*joint_ranges)
 
-for config in all_configs:
-    # Set the joint positions
-    data.qpos = np.array(config)
-    data.qvel = np.zeros(model.nv)
-    data.qacc = np.zeros(model.nv)
+# Initialize a list to store results
+experiment_data = []
 
-    # Calculate inverse dynamics
-    mujoco.mj_inverse(model, data)
-    
-    # Store the results: config and torques
-    results.append(config + tuple(data.qfrc_inverse))
+# Function to calculate inverse dynamics
+def calculate_inverse_dynamics(model, data, qpos):
+    mujoco.mj_resetData(model, data)
+    data.qpos[:len(qpos)] = qpos
+    mujoco.mj_forward(model, data)  # To compute velocity and acceleration
+    mujoco.mj_inverse(model, data)  # To compute torques
+    return data.qfrc_inverse[:len(qpos)]
 
-# Convert results to a DataFrame
-column_names = [f'joint_{i}_angle' for i in range(model.nq)] + [f'joint_{i}_torque' for i in range(model.nq)]
-df = pd.DataFrame(results, columns=column_names)
+# Iterate through all configurations and calculate torques
+for config in all_configurations:
+    torques = calculate_inverse_dynamics(model, data, config)
+    lst = list(config) + list(torques)
+    experiment_data.append(lst)
 
-# Save to CSV
+# Create a DataFrame to store the results
+columns = joints + [f'torque_{joint}' for joint in joints]
+df = pd.DataFrame(experiment_data, columns=columns)
+
+# Save results to a CSV file
 df.to_csv('robot_dynamics_results.csv', index=False)
 
-# Plotting the results
-torque_columns = [col for col in df.columns if 'torque' in col]
-torque_data = df.melt(value_vars=torque_columns, var_name='joint', value_name='torque')
+# Read the CSV file for plotting
+data = pd.read_csv('robot_dynamics_results.csv')
 
-plt.figure(figsize=(12, 6))
-sns.violinplot(x='joint', y='torque', data=torque_data)
-plt.title('Torque Distribution across Different Joints')
+# Preparing the DataFrame for plotting
+torque_columns = [f'torque_{joint}' for joint in joints]
+df_melted = data.melt(value_vars=torque_columns, var_name='Joint', value_name='Torque')
+
+# Plotting the torque distributions using a violin plot
+plt.figure(figsize=(12, 8))
+sns.violinplot(x='Joint', y='Torque', data=df_melted)
+plt.title('Torque Distribution Across Joints')
 plt.xlabel('Joint')
-plt.ylabel('Torque (Nm)')
-plt.grid(True)
-
-# Save plot as image
-plt.savefig('torque_distribution_violinplot.png')
-plt.close()
+plt.ylabel('Torque')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.savefig('torques.png')
+plt.show()
