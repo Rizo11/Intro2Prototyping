@@ -1,0 +1,135 @@
+<?xml version="1.0" ?>
+<robot name="proj">
+
+<link name="base_link">
+  <inertial>
+    <origin xyz="0.012729982890319022 0.08116913690487924 -0.07288603017813033" rpy="0 0 0"/>
+    <mass value="0.03509413444715188"/>
+    <inertia ixx="3.585368086500367e-06" iyy="6.350463170512759e-06" izz="4.875116536425634e-06" ixy="1.359167712240124e-06" iyz="-7.347933486578017e-07" ixz="1.9590896415500213e-06"/>
+  </inertial>
+  <visual>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </visual>
+  <collision>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="arm_manimulator_-_Copy_-_Copy_-_Copy1">
+  <inertial>
+    <origin xyz="0.0010188470115143223 -0.05589955184362644 0.10716076831121368" rpy="0 0 0"/>
+    <mass value="0.024715876132535272"/>
+    <inertia ixx="3.7069088455743957e-06" iyy="4.154526872487927e-06" izz="1.727760077523577e-06" ixy="3.7777182545454475e-07" iyz="6.415016913291147e-07" ixz="-9.666028618490788e-07"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.010996 -0.135238 0.151849" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/arm_manimulator_-_Copy_-_Copy_-_Copy1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </visual>
+  <collision>
+    <origin xyz="-0.010996 -0.135238 0.151849" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/arm_manimulator_-_Copy_-_Copy_-_Copy1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="arm_manimulator_-_Copy_-_Copy_21">
+  <inertial>
+    <origin xyz="-0.012939628717618445 0.00495846230555555 0.012214526469006108" rpy="0 0 0"/>
+    <mass value="0.03375875088840804"/>
+    <inertia ixx="2.7174195971609526e-06" iyy="5.521773027233503e-06" izz="5.095411738854807e-06" ixy="1.5138091495307414e-06" iyz="-3.063505095131987e-07" ixz="8.559614279580907e-07"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.044353 -0.064107 0.037923" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/arm_manimulator_-_Copy_-_Copy_21.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </visual>
+  <collision>
+    <origin xyz="-0.044353 -0.064107 0.037923" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/arm_manimulator_-_Copy_-_Copy_21.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<link name="arm_manimulator_-_Copy_-_Copy_-_Copy2">
+  <inertial>
+    <origin xyz="-0.011541152988485678 0.0060004481563735584 -0.009825231688786323" rpy="0 0 0"/>
+    <mass value="0.024715876132535272"/>
+    <inertia ixx="3.7069088455743957e-06" iyy="4.154526872487927e-06" izz="1.727760077523577e-06" ixy="3.7777182545454475e-07" iyz="6.415016913291147e-07" ixz="-9.666028618490788e-07"/>
+  </inertial>
+  <visual>
+    <origin xyz="-0.023556 -0.073338 0.034863" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/arm_manimulator_-_Copy_-_Copy_-_Copy1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </visual>
+  <collision>
+    <origin xyz="-0.023556 -0.073338 0.034863" rpy="0 0 0"/>
+    <geometry>
+      <mesh filename="meshes/arm_manimulator_-_Copy_-_Copy_-_Copy1.stl" scale="0.001 0.001 0.001"/>
+    </geometry>
+  </collision>
+</link>
+
+<joint name="Revolute_1" type="continuous">
+  <origin xyz="0.023556 0.073338 -0.034863" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="arm_manimulator_-_Copy_-_Copy_-_Copy1"/>
+  <axis xyz="0.856021 -0.413198 0.310638"/>
+</joint>
+<transmission name="Revolute_1_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_1">
+    <hardwareInterface>PositionJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute_1_actr">
+    <hardwareInterface>PositionJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+<!-- <joint name="Revolute_2" type="continuous">
+  <origin xyz="0.044353 0.064107 -0.037923" rpy="0 0 0"/>
+  <parent link="base_link"/>
+  <child link="arm_manimulator_-_Copy_-_Copy_21"/>
+  <axis xyz="-0.856021 0.413198 -0.310638"/>
+</joint>
+<transmission name="Revolute_2_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_2">
+    <hardwareInterface>PositionJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute_2_actr">
+    <hardwareInterface>PositionJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission> -->
+
+<joint name="Revolute_3" type="continuous">
+  <origin xyz="-0.020797 0.009231 0.00306" rpy="0 0 0"/>
+  <parent link="arm_manimulator_-_Copy_-_Copy_21"/>
+  <child link="arm_manimulator_-_Copy_-_Copy_-_Copy1"/>
+  <axis xyz="0.310638 -0.069156 -0.948009"/>
+</joint>
+<transmission name="Revolute_3_tran">
+  <type>transmission_interface/SimpleTransmission</type>
+  <joint name="Revolute_3">
+    <hardwareInterface>PositionJointInterface</hardwareInterface>
+  </joint>
+  <actuator name="Revolute_3_actr">
+    <hardwareInterface>PositionJointInterface</hardwareInterface>
+    <mechanicalReduction>1</mechanicalReduction>
+  </actuator>
+</transmission>
+
+</robot>
